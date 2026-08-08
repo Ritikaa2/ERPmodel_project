@@ -1,0 +1,20 @@
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  SALES = 'SALES',
+  WAREHOUSE = 'WAREHOUSE',
+  ACCOUNTS = 'ACCOUNTS',
+}
+
+export enum ChallanStatus {
+  DRAFT = 'DRAFT',
+  PENDING_DISPATCH = 'PENDING_DISPATCH',
+  DISPATCHED = 'DISPATCHED',
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum PaymentStatus {
+  UNPAID = 'UNPAID',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  PAID = 'PAID',
+}
