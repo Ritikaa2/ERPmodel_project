@@ -31,9 +31,39 @@ export class AuthController {
         throw ApiError.badRequest('Please select a valid role (ADMIN, SALES, WAREHOUSE, ACCOUNTS)');
       }
 
-      if (!password || password.length < 6) {
-        throw ApiError.badRequest('Password must be at least 6 characters long');
-      }
+      if (!password) {
+  throw ApiError.badRequest('Password is required');
+}
+
+if (password.length < 6) {
+  throw ApiError.badRequest(
+    'Password must be at least 6 characters long'
+  );
+}
+
+if (!/[a-z]/.test(password)) {
+  throw ApiError.badRequest(
+    'Password must contain at least one lowercase letter'
+  );
+}
+
+if (!/[A-Z]/.test(password)) {
+  throw ApiError.badRequest(
+    'Password must contain at least one uppercase letter'
+  );
+}
+
+if (!/[0-9]/.test(password)) {
+  throw ApiError.badRequest(
+    'Password must contain at least one number'
+  );
+}
+
+if (!/[^A-Za-z0-9]/.test(password)) {
+  throw ApiError.badRequest(
+    'Password must contain at least one special character'
+  );
+}
 
       if (confirmPassword && password !== confirmPassword) {
         throw ApiError.badRequest('Password confirmation does not match');
