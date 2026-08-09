@@ -28,7 +28,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
   onNavigateToLogin,
   onSignUpSuccess,
 }) => {
-  const { register } = useAuth();
+  const { register, googleLogin } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -46,6 +46,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
   const [apiError, setApiError] = useState('');
   const [googleNotice, setGoogleNotice] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   const validate = (): boolean => {
     let isValid = true;
@@ -120,10 +121,14 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
   const handleGoogleLogin = async () => {
     setApiError('');
     setGoogleNotice('');
+    setIsGoogleSubmitting(true);
     try {
-      await authService.googleAuth();
+      await googleLogin();
+      onSignUpSuccess();
     } catch (err: any) {
-      setGoogleNotice(err.message || 'Google OAuth is not configured in backend environment.');
+      setGoogleNotice(err.message || 'Google Sign-In encountered an issue.');
+    } finally {
+      setIsGoogleSubmitting(false);
     }
   };
 
@@ -395,11 +400,21 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
 
             <button
               type="button"
+              disabled={isGoogleSubmitting}
               onClick={handleGoogleLogin}
-              className="w-full py-2 px-4 bg-white dark:bg-slate-950 hover:bg-slate-50 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2"
+              className="w-full py-2 px-4 bg-white dark:bg-slate-950 hover:bg-slate-50 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-2xs"
             >
-              <GoogleIcon className="w-4 h-4" />
-              <span>Continue with Google</span>
+              {isGoogleSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                  <span>Connecting to Google...</span>
+                </>
+              ) : (
+                <>
+                  <GoogleIcon className="w-4 h-4" />
+                  <span>Continue with Google</span>
+                </>
+              )}
             </button>
           </div>
 

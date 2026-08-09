@@ -24,10 +24,10 @@ export const ENV = {
     FROM: process.env.SMTP_FROM || 'Mini ERP Portal <noreply@minierp.in>',
   },
   EMAILJS: {
-    SERVICE_ID: process.env.EMAILJS_SERVICE_ID || '',
-    TEMPLATE_ID: process.env.EMAILJS_TEMPLATE_ID || '',
-    PUBLIC_KEY: process.env.EMAILJS_PUBLIC_KEY || '',
-    PRIVATE_KEY: process.env.EMAILJS_PRIVATE_KEY || '',
+    SERVICE_ID: process.env.EMAILJS_SERVICE_ID || 'service_t9esh26',
+    TEMPLATE_ID: process.env.EMAILJS_TEMPLATE_ID || 'template_qx19nto',
+    PUBLIC_KEY: process.env.EMAILJS_PUBLIC_KEY || 'a4prX5eYCC3Wo5sMi',
+    PRIVATE_KEY: process.env.EMAILJS_PRIVATE_KEY || 'pNlpiwi8drSOqayC38A4N',
   },
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
 };

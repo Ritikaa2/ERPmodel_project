@@ -115,9 +115,9 @@ export const authService = {
       setStoredToken(data.token, true);
       return data.user;
     } catch (error: any) {
-      console.warn('Firebase login notice:', error.message);
+      console.warn('Firebase login notice:', error?.message || error);
       throw new Error(
-        'Google sign-in is not configured correctly. Check Firebase env vars and add your deployed domain in Firebase Authorized domains.'
+        error?.message || 'Google sign-in is not configured correctly. Check Firebase env vars.'
       );
     }
   },
