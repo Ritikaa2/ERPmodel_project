@@ -5,6 +5,23 @@ import { ApiResponse } from '../utils/apiResponse';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 import { uploadToS3OrLocal } from '../utils/s3';
 
+const productColumnExists = async (columnName: string) => {
+  if (!pool) return false;
+
+  const [rows]: any = await pool.query(
+    `
+    SELECT COUNT(*) AS count
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'products'
+      AND COLUMN_NAME = ?
+    `,
+    [columnName]
+  );
+
+  return Number(rows[0]?.count || 0) > 0;
+};
+
 export class InventoryController {
   static async getProducts(req: Request, res: Response, next: NextFunction) {
     try {
@@ -21,7 +38,6 @@ export class InventoryController {
             stock_quantity,
             min_stock_level,
             location,
-            image_url,
             created_at
           FROM products
           WHERE 1=1
@@ -50,6 +66,7 @@ export class InventoryController {
           unit_price: Number(p.unit_price),
           stock_quantity: Number(p.stock_quantity),
           min_stock_level: Number(p.min_stock_level),
+          image_url: p.image_url || null,
         }));
 
         return res.status(200).json(ApiResponse.success(products));
@@ -130,22 +147,35 @@ export class InventoryController {
           throw new ApiError(409, 'Product with this SKU already exists');
         }
 
+        const hasImageUrlColumn = await productColumnExists('image_url');
+        const productColumns = [
+          'name',
+          'sku',
+          'category',
+          'unit_price',
+          'stock_quantity',
+          'min_stock_level',
+          'location',
+          ...(hasImageUrlColumn ? ['image_url'] : []),
+        ];
+        const productValues = [
+          newProductData.name,
+          newProductData.sku,
+          newProductData.category,
+          newProductData.unit_price,
+          newProductData.stock_quantity,
+          newProductData.min_stock_level,
+          newProductData.location,
+          ...(hasImageUrlColumn ? [newProductData.image_url] : []),
+        ];
+
         const [result]: any = await pool.query(
           `
           INSERT INTO products
-          (name, sku, category, unit_price, stock_quantity, min_stock_level, location, image_url)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          (${productColumns.join(', ')})
+          VALUES (${productColumns.map(() => '?').join(', ')})
           `,
-          [
-            newProductData.name,
-            newProductData.sku,
-            newProductData.category,
-            newProductData.unit_price,
-            newProductData.stock_quantity,
-            newProductData.min_stock_level,
-            newProductData.location,
-            newProductData.image_url,
-          ]
+          productValues
         );
 
         if (newProductData.stock_quantity > 0) {
@@ -162,6 +192,7 @@ export class InventoryController {
         const [rows]: any = await pool.query('SELECT * FROM products WHERE id = ?', [result.insertId]);
         const product = rows[0];
         product.unit_price = Number(product.unit_price);
+        product.image_url = product.image_url || null;
         return res.status(201).json(ApiResponse.success(product, 'Product created successfully'));
       }
 
@@ -253,6 +284,7 @@ export class InventoryController {
         const [updatedRows]: any = await pool.query('SELECT * FROM products WHERE id = ?', [productId]);
         const updatedProduct = updatedRows[0];
         updatedProduct.unit_price = Number(updatedProduct.unit_price);
+        updatedProduct.image_url = updatedProduct.image_url || null;
         return res.status(200).json(ApiResponse.success(updatedProduct, 'Stock updated successfully'));
       }
 

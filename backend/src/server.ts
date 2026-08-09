@@ -2,9 +2,11 @@ import app from './app';
 import { ENV } from './config/env';
 import { initDatabase } from './config/database';
 import { seedInitialData } from './db/seed';
+import { migrateDatabase } from './db/migrate';
 
 const startServer = async () => {
   await initDatabase();
+  await migrateDatabase();
   await seedInitialData();
 
   app.listen(ENV.PORT, () => {
