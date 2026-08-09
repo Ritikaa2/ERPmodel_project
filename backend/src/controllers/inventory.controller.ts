@@ -3,6 +3,7 @@ import { inMemoryStore } from '../config/database';
 import { ApiError } from '../utils/apiError';
 import { ApiResponse } from '../utils/apiResponse';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
+import { uploadToS3OrLocal } from '../utils/s3';
 
 export class InventoryController {
   static async getProducts(req: Request, res: Response, next: NextFunction) {
@@ -34,9 +35,28 @@ export class InventoryController {
     }
   }
 
+  static async uploadImage(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.file) {
+        throw ApiError.badRequest('Please select an image file to upload');
+      }
+
+      const imageUrl = await uploadToS3OrLocal(req.file);
+
+      return res.status(200).json(
+        ApiResponse.success(
+          { imageUrl },
+          'Product image uploaded successfully to AWS S3 / Local Storage'
+        )
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async createProduct(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const { name, sku, category, unit_price, stock_quantity, min_stock_level, location } = req.body;
+      const { name, sku, category, unit_price, stock_quantity, min_stock_level, location, image_url } = req.body;
 
       if (!name || name.trim().length < 2) {
         throw ApiError.badRequest('Product Name is required');
@@ -61,6 +81,7 @@ export class InventoryController {
         stock_quantity: Number(stock_quantity) || 0,
         min_stock_level: Number(min_stock_level) || 10,
         location: location || 'WH-01',
+        image_url: image_url || null,
         created_at: new Date().toISOString(),
       };
 

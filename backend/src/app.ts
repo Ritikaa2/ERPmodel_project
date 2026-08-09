@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { ENV } from './config/env';
 import { errorHandler } from './middlewares/error.middleware';
 import authRoutes from './routes/auth.routes';
@@ -15,6 +16,9 @@ const app = express();
 app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Static uploads directory
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
