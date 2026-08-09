@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken, TokenPayload } from '../utils/jwt.js';
-import { ApiError } from '../utils/apiError.js';
-import { UserRole } from '../constants/roles.js';
+import { verifyToken, TokenPayload } from '../utils/jwt';
+import { ApiError } from '../utils/apiError';
+import { UserRole } from '../constants/roles';
 
 export interface AuthenticatedRequest extends Request {
   user?: TokenPayload;

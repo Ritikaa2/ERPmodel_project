@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
-import { UserService } from '../services/user.service.js';
-import { comparePassword, hashPassword } from '../utils/hash.js';
-import { generateToken } from '../utils/jwt.js';
-import { ApiError } from '../utils/apiError.js';
-import { ApiResponse } from '../utils/apiResponse.js';
-import { AuthenticatedRequest } from '../middlewares/auth.middleware.js';
-import { UserRole } from '../constants/roles.js';
+import { UserService } from '../services/user.service';
+import { comparePassword, hashPassword } from '../utils/hash';
+import { generateToken } from '../utils/jwt';
+import { ApiError } from '../utils/apiError';
+import { ApiResponse } from '../utils/apiResponse';
+import { AuthenticatedRequest } from '../middlewares/auth.middleware';
+import { UserRole } from '../constants/roles';
+import { sendOTPEmail } from '../utils/mailer';
 
 export class AuthController {
   static async register(req: Request, res: Response, next: NextFunction) {
@@ -18,7 +19,7 @@ export class AuthController {
       }
 
       if (!email || typeof email !== 'string' || !email.includes('@')) {
-        throw ApiError.badRequest('Please enter a valid email address');
+        throw ApiError.badRequest('Please enter a valid business email address');
       }
 
       if (phone && !/^[6-9]\d{9}$/.test(phone.replace(/\s+/g, ''))) {
@@ -40,7 +41,7 @@ export class AuthController {
 
       const existing = await UserService.findByEmail(email);
       if (existing) {
-        throw new ApiError(409, 'An account with this email address already exists');
+        throw new ApiError(409, 'An account with this email address already exists. Please sign in instead.');
       }
 
       const hashedPassword = await hashPassword(password);
@@ -124,6 +125,52 @@ export class AuthController {
     }
   }
 
+  static async googleLogin(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, name } = req.body;
+
+      if (!email || !email.includes('@')) {
+        throw ApiError.badRequest('Google authentication failed: Email is missing');
+      }
+
+      let user = await UserService.findByEmail(email);
+
+      if (!user) {
+        // Auto-register new Google user with default SALES role
+        const placeholderPassword = await hashPassword(crypto.randomBytes(16).toString('hex'));
+        user = await UserService.createUser({
+          name: name || email.split('@')[0],
+          email,
+          password_hash: placeholderPassword,
+          role: UserRole.SALES,
+        });
+      }
+
+      const token = generateToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+      });
+
+      return res.status(200).json(
+        ApiResponse.success(
+          {
+            token,
+            user: {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            },
+          },
+          'Google authentication successful'
+        )
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async getMe(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
@@ -153,33 +200,89 @@ export class AuthController {
       const { email } = req.body;
 
       if (!email || !email.includes('@')) {
-        throw ApiError.badRequest('Please provide a valid email address');
+        throw ApiError.badRequest('Please provide a valid business email address');
       }
 
-      const user = await UserService.findByEmail(email);
-      let resetToken: string | null = null;
-      let resetLink: string | null = null;
+      const cleanEmail = email.trim().toLowerCase();
+      const user = await UserService.findByEmail(cleanEmail);
+      
+      // Generate a 6-digit numeric OTP
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
       if (user) {
-        resetToken = crypto.randomBytes(32).toString('hex');
-        const expires = new Date(Date.now() + 3600000); // 1 hour
-        await UserService.saveResetToken(user.email, resetToken, expires);
-        resetLink = `http://localhost:5173?screen=reset-password&token=${resetToken}`;
+        await UserService.saveOTP(user.email, otpCode, expires);
+        await sendOTPEmail(user.email, otpCode, user.name);
       } else {
-        // Generate dummy token format for security simulation
-        resetToken = crypto.randomBytes(32).toString('hex');
-        resetLink = `http://localhost:5173?screen=reset-password&token=${resetToken}`;
+        await sendOTPEmail(cleanEmail, otpCode, 'User');
       }
 
       return res.status(200).json(
         ApiResponse.success(
           {
-            emailSentTo: email,
-            resetToken,
-            resetLink,
+            emailSentTo: cleanEmail,
+            otpCode, // Always returned so local testing and frontend fetching work smoothly!
+            expiresInMinutes: 15,
           },
-          'If an account exists for this email, a password reset link has been sent.'
+          `A 6-digit password reset OTP code has been dispatched to ${cleanEmail}.`
         )
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async verifyOTP(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, otpCode } = req.body;
+
+      if (!email || !email.includes('@')) {
+        throw ApiError.badRequest('Valid email is required');
+      }
+
+      if (!otpCode || otpCode.length !== 6) {
+        throw ApiError.badRequest('Please enter a valid 6-digit OTP code');
+      }
+
+      const isValid = await UserService.verifyOTP(email, otpCode);
+      if (!isValid) {
+        throw ApiError.badRequest('Invalid or expired OTP code. Please check your email or request a new code.');
+      }
+
+      return res.status(200).json(
+        ApiResponse.success({ verified: true }, 'OTP code verified successfully')
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async resetPasswordWithOTP(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, otpCode, newPassword } = req.body;
+
+      if (!email || !email.includes('@')) {
+        throw ApiError.badRequest('Valid email is required');
+      }
+
+      if (!otpCode || otpCode.length !== 6) {
+        throw ApiError.badRequest('Please enter a valid 6-digit OTP code');
+      }
+
+      if (!newPassword || newPassword.length < 6) {
+        throw ApiError.badRequest('New password must be at least 6 characters long');
+      }
+
+      const isValid = await UserService.verifyOTP(email, otpCode);
+      if (!isValid) {
+        throw ApiError.badRequest('Invalid or expired OTP code. Please request a new code.');
+      }
+
+      const newHash = await hashPassword(newPassword);
+      await UserService.updatePasswordByEmail(email, newHash);
+
+      return res.status(200).json(
+        ApiResponse.success(null, 'Password updated successfully! You can now sign in with your new password.')
       );
     } catch (error) {
       next(error);

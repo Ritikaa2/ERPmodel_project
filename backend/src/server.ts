@@ -1,7 +1,7 @@
-import app from './app.js';
-import { ENV } from './config/env.js';
-import { initDatabase } from './config/database.js';
-import { seedInitialData } from './db/seed.js';
+import app from './app';
+import { ENV } from './config/env';
+import { initDatabase } from './config/database';
+import { seedInitialData } from './db/seed';
 
 const startServer = async () => {
   await initDatabase();

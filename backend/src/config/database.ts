@@ -1,10 +1,9 @@
 import mysql from 'mysql2/promise';
-import { ENV } from './env.js';
+import { ENV } from './env';
 
 export let pool: mysql.Pool | null = null;
 export let isUsingInMemoryFallback = false;
 
-// In-memory data store for fallback development when MySQL server is not connected locally
 export const inMemoryStore = {
   users: [] as any[],
   customers: [] as any[],
@@ -26,7 +25,6 @@ export const initDatabase = async () => {
       queueLimit: 0,
     });
 
-    // Test connection
     await connection.getConnection();
     pool = connection;
     console.log(`✅ Connected to MySQL database "${ENV.DB.NAME}" at ${ENV.DB.HOST}:${ENV.DB.PORT}`);

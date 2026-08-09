@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import path from 'path';
 
 dotenv.config();
 
@@ -14,8 +13,15 @@ export const ENV = {
     NAME: process.env.DB_NAME || 'mini_erp_db',
   },
   JWT: {
-    SECRET: process.env.JWT_SECRET || 'fallback_secret_key_dev',
+    SECRET: process.env.JWT_SECRET || 'supersecret_jwt_key_mini_erp_2026',
     EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
+  },
+  SMTP: {
+    HOST: process.env.SMTP_HOST || 'smtp.ethereal.email',
+    PORT: Number(process.env.SMTP_PORT) || 587,
+    USER: process.env.SMTP_USER || '',
+    PASS: process.env.SMTP_PASS || '',
+    FROM: process.env.SMTP_FROM || 'Mini ERP Portal <noreply@minierp.in>',
   },
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
 };

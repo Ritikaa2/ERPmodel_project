@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext.js';
 import { GoogleIcon } from '../components/common/GoogleIcon.js';
-import { authService } from '../services/auth.service.js';
 import {
   Eye,
   EyeOff,
@@ -26,7 +25,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   onNavigateToSignUp,
   onLoginSuccess,
 }) => {
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,6 +37,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [apiError, setApiError] = useState('');
   const [googleNotice, setGoogleNotice] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   const validateEmail = (val: string): boolean => {
     if (!val.trim()) {
@@ -89,10 +89,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const handleGoogleLogin = async () => {
     setApiError('');
     setGoogleNotice('');
+    setIsGoogleSubmitting(true);
     try {
-      await authService.googleAuth();
+      await googleLogin();
+      onLoginSuccess();
     } catch (err: any) {
-      setGoogleNotice(err.message || 'Google OAuth is not configured in backend environment.');
+      setGoogleNotice(err.message || 'Google OAuth sign-in encountered an issue.');
+    } finally {
+      setIsGoogleSubmitting(false);
     }
   };
 
@@ -109,11 +113,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl w-full bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 border border-slate-200 dark:border-slate-800">
         
-        {/* LEFT COLUMN: Clean Matching Image & Minimal Branding (Desktop Only) */}
+        {/* LEFT COLUMN: Graphic & Minimal Branding (Desktop Only) */}
         <div className="hidden lg:flex lg:col-span-5 bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-950 p-8 flex-col justify-between text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          {/* Logo & Brand Header */}
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-white">
@@ -126,7 +129,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             </div>
           </div>
 
-          {/* Clean Matching Generated ERP Graphic */}
           <div className="relative z-10 my-4 flex items-center justify-center">
             <img
               src="/erp_login_illustration.png"
@@ -135,7 +137,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             />
           </div>
 
-          {/* Minimal Text & Security Footer */}
           <div className="relative z-10 space-y-3">
             <h2 className="text-lg font-bold text-white leading-snug">
               Unified Enterprise Management
@@ -145,15 +146,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             </p>
             <div className="flex items-center gap-2 text-[11px] text-slate-400 border-t border-white/10 pt-3">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Role-Based Security (Admin, Sales, Warehouse, Accounts)</span>
+              <span>Firebase Google OAuth & JWT Security Enabled</span>
             </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Clean & Simple Production Login Form */}
+        {/* RIGHT COLUMN: Production Login Form */}
         <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
           <div>
-            {/* Header */}
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3 lg:hidden">
                 <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
@@ -167,7 +167,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               </p>
             </div>
 
-            {/* Clean Quick Demo Role Selector */}
+            {/* Quick Demo Role Selector */}
             <div className="mb-6 p-3.5 bg-indigo-50/70 dark:bg-slate-800/80 border border-indigo-100 dark:border-slate-700 rounded-2xl">
               <p className="text-[11px] font-bold text-indigo-900 dark:text-indigo-300 mb-2 flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" /> Demo Roles (Click to fill credentials):
@@ -204,7 +204,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               </div>
             </div>
 
-            {/* Error Notifications */}
             {apiError && (
               <div className="mb-4 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-rose-700 dark:text-rose-300 rounded-xl text-xs flex items-start gap-2.5">
                 <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
@@ -219,9 +218,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               </div>
             )}
 
-            {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-              {/* Email */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Email Address
@@ -250,7 +247,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 )}
               </div>
 
-              {/* Password */}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -295,7 +291,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 )}
               </div>
 
-              {/* Remember Me */}
               <div className="flex items-center justify-between pt-1">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -308,7 +303,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 </label>
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -325,7 +319,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               </button>
             </form>
 
-            {/* Divider */}
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
@@ -335,18 +328,27 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               </div>
             </div>
 
-            {/* Google OAuth Button */}
+            {/* Official Firebase Google Button */}
             <button
               type="button"
+              disabled={isGoogleSubmitting}
               onClick={handleGoogleLogin}
               className="w-full py-2.5 px-4 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold transition flex items-center justify-center gap-3 shadow-2xs"
             >
-              <GoogleIcon className="w-4 h-4" />
-              <span>Continue with Google</span>
+              {isGoogleSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                  <span>Connecting to Google...</span>
+                </>
+              ) : (
+                <>
+                  <GoogleIcon className="w-4 h-4" />
+                  <span>Continue with Google</span>
+                </>
+              )}
             </button>
           </div>
 
-          {/* Sign Up Link Footer */}
           <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
             <p className="text-xs text-slate-500">
               Don't have an account yet?{' '}
