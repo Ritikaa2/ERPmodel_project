@@ -221,7 +221,7 @@ export class AuthController {
         ApiResponse.success(
           {
             emailSentTo: cleanEmail,
-            otpCode, // Always returned so local testing and frontend fetching work smoothly!
+            otpCode: process.env.NODE_ENV === 'production' ? undefined : otpCode,
             expiresInMinutes: 15,
           },
           `A 6-digit password reset OTP code has been dispatched to ${cleanEmail}.`

@@ -13,8 +13,9 @@ const getPool = () => {
 };
 
 const dbStatusToFrontend = (status: string) => {
-  switch (status) {
+  switch ((status || '').toUpperCase()) {
     case 'DISPATCHED':
+    case 'CONFIRMED':
       return 'Confirmed';
     case 'CANCELLED':
       return 'Cancelled';
@@ -51,7 +52,7 @@ export class ChallanController {
           c.id,
           c.challan_number,
           c.customer_id,
-          cu.company_name AS customer_name,
+          COALESCE(c.customer_name, cu.business_name, cu.name) AS customer_name,
           c.total_amount,
           c.status,
           c.created_by,
@@ -71,18 +72,19 @@ export class ChallanController {
         conditions.push(`
           (
             LOWER(c.challan_number) LIKE ?
-            OR LOWER(cu.company_name) LIKE ?
+            OR LOWER(cu.business_name) LIKE ?
+            OR LOWER(cu.name) LIKE ?
           )
         `);
 
         const searchValue = `%${search.toLowerCase()}%`;
-        params.push(searchValue, searchValue);
+        params.push(searchValue, searchValue, searchValue);
       }
 
       if (status && typeof status === 'string' && status !== 'All') {
         const dbStatus = frontendStatusToDb(status);
-        conditions.push(`c.status = ?`);
-        params.push(dbStatus);
+        conditions.push(`(c.status = ? OR LOWER(c.status) = LOWER(?))`);
+        params.push(dbStatus, status);
       }
 
       if (conditions.length > 0) {
@@ -94,7 +96,9 @@ export class ChallanController {
           c.id,
           c.challan_number,
           c.customer_id,
-          cu.company_name,
+          c.customer_name,
+          cu.business_name,
+          cu.name,
           c.total_amount,
           c.status,
           c.created_by,
@@ -144,7 +148,7 @@ export class ChallanController {
           c.id,
           c.challan_number,
           c.customer_id,
-          cu.company_name AS customer_name,
+          COALESCE(c.customer_name, cu.business_name, cu.name) AS customer_name,
           c.total_amount,
           c.status,
           c.created_by,
@@ -243,7 +247,7 @@ export class ChallanController {
 
       const [customerRows]: any = await db.query(
         `
-        SELECT id, company_name, contact_person
+        SELECT id, business_name, name
         FROM customers
         WHERE id = ?
         `,
@@ -285,7 +289,7 @@ export class ChallanController {
             id,
             name,
             sku,
-            price,
+            unit_price,
             stock_quantity
           FROM products
           WHERE id = ?
@@ -310,7 +314,7 @@ export class ChallanController {
           );
         }
 
-        const unitPrice = Number(product.price);
+        const unitPrice = Number(product.unit_price);
         const lineTotal = unitPrice * quantity;
 
         totalAmount += lineTotal;
@@ -345,16 +349,20 @@ export class ChallanController {
           (
             challan_number,
             customer_id,
+            customer_name,
             total_amount,
+            total_quantity,
             status,
             created_by
           )
-          VALUES (?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
           `,
           [
             temporaryNumber,
             customerId,
+            customer.business_name || customer.name,
             totalAmount,
+            totalQuantity,
             dbStatus,
             req.user.userId,
           ]
@@ -383,15 +391,19 @@ export class ChallanController {
             (
               challan_id,
               product_id,
+              product_name,
+              sku,
               quantity,
               unit_price,
               total_price
             )
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             `,
             [
               challanId,
               item.product_id,
+              item.product_name,
+              item.sku,
               item.quantity,
               item.unit_price,
               item.total_price,
@@ -419,6 +431,22 @@ export class ChallanController {
                 `Insufficient stock for "${item.product_name}"`
               );
             }
+
+            await db.query(
+              `
+              INSERT INTO stock_movements
+              (product_id, product_name, sku, type, quantity, reason, created_by_name)
+              VALUES (?, ?, ?, 'OUT', ?, ?, ?)
+              `,
+              [
+                item.product_id,
+                item.product_name,
+                item.sku,
+                item.quantity,
+                `Sales Challan ${challanNumber}`,
+                req.user.email || 'Sales User',
+              ]
+            );
           }
         }
 
@@ -428,7 +456,7 @@ export class ChallanController {
           id: challanId,
           challan_number: challanNumber,
           customer_id: customer.id,
-          customer_name: customer.company_name,
+          customer_name: customer.business_name || customer.name,
           total_amount: totalAmount,
           total_quantity: totalQuantity,
           status: requestedStatus,
@@ -504,6 +532,7 @@ export class ChallanController {
           ci.product_id,
           ci.quantity,
           p.name AS product_name,
+          p.sku,
           p.stock_quantity
         FROM challan_items ci
         INNER JOIN products p ON p.id = ci.product_id
@@ -517,7 +546,7 @@ export class ChallanController {
       try {
         if (
           status === 'Confirmed' &&
-          challan.status === 'DRAFT'
+          dbStatusToFrontend(challan.status) === 'Draft'
         ) {
           // Check stock first
           for (const item of items) {
@@ -552,6 +581,22 @@ export class ChallanController {
                 `Unable to update stock for "${item.product_name}"`
               );
             }
+
+            await db.query(
+              `
+              INSERT INTO stock_movements
+              (product_id, product_name, sku, type, quantity, reason, created_by_name)
+              VALUES (?, ?, ?, 'OUT', ?, ?, ?)
+              `,
+              [
+                item.product_id,
+                item.product_name,
+                item.sku,
+                item.quantity,
+                `Sales Challan ${challan.challan_number}`,
+                req.user?.email || 'Sales User',
+              ]
+            );
           }
 
           await db.query(
@@ -564,11 +609,11 @@ export class ChallanController {
           );
         } else if (
           status === 'Cancelled' &&
-          challan.status !== 'CANCELLED'
+          dbStatusToFrontend(challan.status) !== 'Cancelled'
         ) {
           // If previously confirmed/dispatched,
           // return stock back
-          if (challan.status === 'DISPATCHED') {
+          if (dbStatusToFrontend(challan.status) === 'Confirmed') {
             for (const item of items) {
               await db.query(
                 `
@@ -593,7 +638,7 @@ export class ChallanController {
             [challanId]
           );
         } else if (
-          challan.status === 'DISPATCHED' &&
+          dbStatusToFrontend(challan.status) === 'Confirmed' &&
           status === 'Confirmed'
         ) {
           throw ApiError.badRequest(

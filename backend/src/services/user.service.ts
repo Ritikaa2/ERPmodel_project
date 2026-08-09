@@ -158,13 +158,17 @@ export class UserService {
           u.email.toLowerCase() === cleanEmail &&
           (u.otp_code === otpCode || u.reset_password_token === otpCode)
       );
-      return !!user;
+
+      if (!user) return false;
+
+      const expiresAt = user.otp_expires || user.reset_password_expires;
+      return !expiresAt || new Date(expiresAt) > now;
     }
 
     try {
       const [rows]: any = await pool.query(
-        'SELECT * FROM users WHERE LOWER(email) = ? AND (reset_password_token = ? OR reset_password_token = ?)',
-        [cleanEmail, otpCode, otpCode]
+        'SELECT * FROM users WHERE LOWER(email) = ? AND reset_password_token = ? AND (reset_password_expires IS NULL OR reset_password_expires > ?)',
+        [cleanEmail, otpCode, now]
       );
       return rows && rows.length > 0;
     } catch (err) {
@@ -173,7 +177,11 @@ export class UserService {
           u.email.toLowerCase() === cleanEmail &&
           (u.otp_code === otpCode || u.reset_password_token === otpCode)
       );
-      return !!user;
+
+      if (!user) return false;
+
+      const expiresAt = user.otp_expires || user.reset_password_expires;
+      return !expiresAt || new Date(expiresAt) > now;
     }
   }
 
@@ -219,7 +227,8 @@ export class UserService {
         (u) =>
           (u.reset_password_token === token || u.otp_code === token)
       );
-      if (user) {
+      const expiresAt = user?.otp_expires || user?.reset_password_expires;
+      if (user && (!expiresAt || new Date(expiresAt) > now)) {
         user.password_hash = newPasswordHash;
         user.reset_password_token = null;
         user.reset_password_expires = null;
@@ -232,8 +241,8 @@ export class UserService {
 
     try {
       const [result]: any = await pool.query(
-        'UPDATE users SET password_hash = ?, reset_password_token = NULL, reset_password_expires = NULL WHERE reset_password_token = ?',
-        [newPasswordHash, token]
+        'UPDATE users SET password_hash = ?, reset_password_token = NULL, reset_password_expires = NULL WHERE reset_password_token = ? AND (reset_password_expires IS NULL OR reset_password_expires > ?)',
+        [newPasswordHash, token, now]
       );
       return result.affectedRows > 0;
     } catch (err) {
@@ -241,7 +250,8 @@ export class UserService {
         (u) =>
           (u.reset_password_token === token || u.otp_code === token)
       );
-      if (user) {
+      const expiresAt = user?.otp_expires || user?.reset_password_expires;
+      if (user && (!expiresAt || new Date(expiresAt) > now)) {
         user.password_hash = newPasswordHash;
         user.reset_password_token = null;
         user.reset_password_expires = null;

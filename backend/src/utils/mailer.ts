@@ -12,6 +12,38 @@ export const transporter = nodemailer.createTransport({
 });
 
 export const sendOTPEmail = async (toEmail: string, otpCode: string, userName: string = 'User') => {
+  if (ENV.EMAILJS.SERVICE_ID && ENV.EMAILJS.TEMPLATE_ID && ENV.EMAILJS.PUBLIC_KEY) {
+    try {
+      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: ENV.EMAILJS.SERVICE_ID,
+          template_id: ENV.EMAILJS.TEMPLATE_ID,
+          user_id: ENV.EMAILJS.PUBLIC_KEY,
+          accessToken: ENV.EMAILJS.PRIVATE_KEY || undefined,
+          template_params: {
+            to_email: toEmail,
+            to_name: userName,
+            otp_code: otpCode,
+            passcode: otpCode,
+            app_name: 'Mini ERP Portal',
+            expires_in: '15 minutes',
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`EmailJS responded with ${response.status}`);
+      }
+
+      console.log(`EmailJS OTP dispatched to ${toEmail}`);
+      return true;
+    } catch (err: any) {
+      console.warn(`EmailJS OTP notice (${err.message}). Trying SMTP fallback.`);
+    }
+  }
+
   const mailOptions = {
     from: ENV.SMTP.FROM,
     to: toEmail,

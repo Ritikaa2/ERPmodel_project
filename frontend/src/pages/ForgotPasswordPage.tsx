@@ -81,7 +81,7 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
       if (res.data) {
         setEmailData(res.data);
         if (res.data.otpCode) {
-          setOtpCode(res.data.otpCode); // Pre-fill generated OTP for instant smooth testing!
+          setOtpCode(res.data.otpCode);
         }
       }
       setStep('VERIFY_OTP');
@@ -175,7 +175,7 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
             <>
               <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Forgot password?</h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                Enter your registered business email address to receive a 6-digit OTP reset code via Nodemailer SMTP.
+                Enter your registered business email address to receive a 6-digit OTP reset code by email.
               </p>
             </>
           )}
@@ -271,11 +271,11 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
             {emailData?.otpCode && (
               <div className="p-3 bg-indigo-50/80 dark:bg-slate-800/80 border border-indigo-100 dark:border-slate-700 rounded-2xl text-xs space-y-1">
                 <div className="flex items-center justify-between text-indigo-900 dark:text-indigo-300 font-bold">
-                  <span>📩 Nodemailer Dispatch Notification</span>
+                  <span>📩 Email Dispatch Notification</span>
                   <span className="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded font-mono">OTP: {emailData.otpCode}</span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  OTP Code pre-filled into the field below for instant smooth testing.
+                  Development mode returned this OTP for local testing.
                 </p>
               </div>
             )}
@@ -426,7 +426,7 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
         <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
           <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5 font-medium">
             <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-            <span>Nodemailer SMTP Dispatch • SSL Encrypted Security</span>
+            <span>Email OTP Dispatch • SSL Encrypted Security</span>
           </p>
         </div>
 

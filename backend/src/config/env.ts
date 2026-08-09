@@ -23,5 +23,11 @@ export const ENV = {
     PASS: process.env.SMTP_PASS || '',
     FROM: process.env.SMTP_FROM || 'Mini ERP Portal <noreply@minierp.in>',
   },
+  EMAILJS: {
+    SERVICE_ID: process.env.EMAILJS_SERVICE_ID || '',
+    TEMPLATE_ID: process.env.EMAILJS_TEMPLATE_ID || '',
+    PUBLIC_KEY: process.env.EMAILJS_PUBLIC_KEY || '',
+    PRIVATE_KEY: process.env.EMAILJS_PRIVATE_KEY || '',
+  },
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
 };

@@ -1,4 +1,4 @@
-import { apiFetch, setStoredToken, clearStoredToken } from './api.js';
+import { API_BASE_URL, apiFetch, setStoredToken, clearStoredToken } from './api.js';
 import { User, LoginResponse, UserRole } from '../types/auth.types.js';
 import { signInWithGoogleFirebase } from '../config/firebase.js';
 
@@ -46,7 +46,7 @@ export const authService = {
   },
 
   forgotPassword: async (email: string): Promise<{ message: string; data?: ForgotPasswordResponse }> => {
-    const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -59,7 +59,7 @@ export const authService = {
   },
 
   verifyOTP: async (email: string, otpCode: string): Promise<boolean> => {
-    const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otpCode }),
@@ -72,7 +72,7 @@ export const authService = {
   },
 
   resetPasswordWithOTP: async (email: string, otpCode: string, newPassword: string): Promise<string> => {
-    const response = await fetch('http://localhost:5000/api/auth/reset-password-otp', {
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otpCode, newPassword }),
@@ -85,7 +85,7 @@ export const authService = {
   },
 
   resetPassword: async (token: string, newPassword: string): Promise<string> => {
-    const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, newPassword }),
@@ -116,16 +116,9 @@ export const authService = {
       return data.user;
     } catch (error: any) {
       console.warn('Firebase login notice:', error.message);
-      // Fallback: If Firebase domain is unconfigured locally, attempt direct backend endpoint
-      const data = await apiFetch<LoginResponse>('/auth/google-login', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: 'google.demo@minierp.in',
-          name: 'Google User',
-        }),
-      });
-      setStoredToken(data.token, true);
-      return data.user;
+      throw new Error(
+        'Google sign-in is not configured correctly. Check Firebase env vars and add your deployed domain in Firebase Authorized domains.'
+      );
     }
   },
 
