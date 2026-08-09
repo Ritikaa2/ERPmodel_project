@@ -71,14 +71,13 @@ import {
 } from 'recharts';
 
 type ScreenMode = 'landing' | 'login' | 'signup' | 'forgot-password' | 'reset-password' | 'dashboard';
-type SectionId = 'home' | 'features' | 'modules' | 'calculator' | 'about' | 'contact';
+type SectionId = 'home' | 'features' | 'modules' | 'calculator' | 'contact';
 
 const navItems: { label: string; id: SectionId }[] = [
   { label: 'Home', id: 'home' },
-  { label: 'Features', id: 'features' },
+  { label: 'Features', id: 'modules' },
   { label: 'Modules', id: 'modules' },
   { label: 'ROI Calculator', id: 'calculator' },
-  { label: 'About', id: 'about' },
 ];
 
 // Data Sets for Hero Chart Simulation
@@ -764,145 +763,6 @@ const MainAppContent: React.FC = () => {
                 })}
               </div>
 
-            </section>
-
-            {/* TABBED FEATURE DEEP-DIVE SHOWCASE */}
-            <section id="features" className="py-20 bg-white/60 dark:bg-slate-900/60 border-y border-slate-200/80 dark:border-slate-800/80">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
-                <div className="text-center max-w-2xl mx-auto mb-12">
-                  <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                    Engineered for Wholesale Excellence
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2">
-                    Click through the tabs to explore specialized operational workflows:
-                  </p>
-                </div>
-
-                {/* Tabs */}
-                <div className="flex justify-center mb-8 border-b border-slate-200 dark:border-slate-800">
-                  <div className="flex gap-4 sm:gap-8 overflow-x-auto pb-2">
-                    {[
-                      { id: 'crm', label: 'CRM & Accounts', icon: Users },
-                      { id: 'warehouse', label: 'Warehouse & Bays', icon: Warehouse },
-                      { id: 'challan', label: 'Sales Challan Wizard', icon: FileSpreadsheet },
-                      { id: 'security', label: 'Role Permissions', icon: ShieldCheck },
-                    ].map((tab) => {
-                      const TabIcon = tab.icon;
-                      return (
-                        <button
-                          key={tab.id}
-                          onClick={() => setActiveFeatureTab(tab.id as any)}
-                          className={`flex items-center gap-2 pb-3 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
-                            activeFeatureTab === tab.id
-                              ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
-                              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                          }`}
-                        >
-                          <TabIcon className="w-4 h-4" />
-                          <span>{tab.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Tab Content Display */}
-                <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                  
-                  <div className="lg:col-span-5 space-y-4">
-                    {activeFeatureTab === 'crm' && (
-                      <>
-                        <span className="px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-300 text-[10px] font-mono font-bold">MODULE 01 • CRM</span>
-                        <h3 className="text-2xl font-bold text-white">Full Customer Lifecycle & Credit Limits</h3>
-                        <p className="text-xs text-slate-300 leading-relaxed">
-                          Track customer GSTIN status, individual payment credit terms, outstanding balances, and historical order trends in one central view.
-                        </p>
-                        <ul className="space-y-2 text-xs text-slate-300">
-                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Auto GSTIN state code parsing</li>
-                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Automated overdue payment reminders</li>
-                        </ul>
-                      </>
-                    )}
-
-                    {activeFeatureTab === 'warehouse' && (
-                      <>
-                        <span className="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold">MODULE 02 • WAREHOUSE</span>
-                        <h3 className="text-2xl font-bold text-white">Multi-Location Stock & Low Stock Triggers</h3>
-                        <p className="text-xs text-slate-300 leading-relaxed">
-                          Assign products to distinct warehouse bays (Aisle 1, Shelf B). Set automated reorder thresholds so you never run out of top sellers.
-                        </p>
-                        <ul className="space-y-2 text-xs text-slate-300">
-                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Real-time stock reservation on order creation</li>
-                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Physical audit signature logs</li>
-                        </ul>
-                      </>
-                    )}
-
-                    {activeFeatureTab === 'challan' && (
-                      <>
-                        <span className="px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 text-[10px] font-mono font-bold">MODULE 03 • SALES</span>
-                        <h3 className="text-2xl font-bold text-white">4-Step Guided Sales Challan Wizard</h3>
-                        <p className="text-xs text-slate-300 leading-relaxed">
-                          Step-by-step order builder: Select Customer → Add Line Items with Tax Calculation → Review Stock → Issue Instant Challan & PDF Invoice.
-                        </p>
-                        <ul className="space-y-2 text-xs text-slate-300">
-                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Auto stock deduction upon issue</li>
-                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Print-ready GST Tax Invoices</li>
-                        </ul>
-                      </>
-                    )}
-
-                    {activeFeatureTab === 'security' && (
-                      <>
-                        <span className="px-2.5 py-1 rounded-md bg-purple-500/20 text-purple-300 text-[10px] font-mono font-bold">MODULE 04 • SECURITY</span>
-                        <h3 className="text-2xl font-bold text-white">Role-Based Access Control (RBAC)</h3>
-                        <p className="text-xs text-slate-300 leading-relaxed">
-                          Ensure sales agents only see their leads, warehouse staff manage inventory bays, and financial statements remain restricted to Admins & Accounts.
-                        </p>
-                        <ul className="space-y-2 text-xs text-slate-300">
-                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Firebase Authentication & JWT Security</li>
-                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Complete IP & Timestamp Activity Logs</li>
-                        </ul>
-                      </>
-                    )}
-
-                    <button
-                      onClick={() => setScreen('login')}
-                      className="pt-2 text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5"
-                    >
-                      <span>Explore this workflow live</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Visual Screen Mockup */}
-                  <div className="lg:col-span-7 bg-slate-950 p-4 rounded-2xl border border-slate-800 font-mono text-xs space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-red-500" />
-                        <div className="w-3 h-3 rounded-full bg-amber-500" />
-                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                        <span className="text-[10px] text-slate-500 ml-2">mini-erp-system // {activeFeatureTab}_view.ts</span>
-                      </div>
-                      <span className="text-[10px] text-indigo-400">STATUS: 200 OK</span>
-                    </div>
-
-                    <div className="p-3 bg-slate-900 rounded-xl space-y-2 text-[11px] text-slate-300">
-                      <p className="text-indigo-400">// Configured API Rest Endpoint Payload</p>
-                      <p>GET /api/v1/{activeFeatureTab}/summary?tenantId=9402</p>
-                      <p className="text-slate-500">{"{"}</p>
-                      <p className="pl-4 text-emerald-400">"status": "success",</p>
-                      <p className="pl-4 text-emerald-400">"activeUsers": 24,</p>
-                      <p className="pl-4 text-emerald-400">"module": "{activeFeatureTab.toUpperCase()}",</p>
-                      <p className="pl-4 text-emerald-400">"healthCheck": "100% Operational"</p>
-                      <p className="text-slate-500">{"}"}</p>
-                    </div>
-                  </div>
-
-                </div>
-
-              </div>
             </section>
 
             {/* LIVE ROI / SAVINGS CALCULATOR SECTION */}
