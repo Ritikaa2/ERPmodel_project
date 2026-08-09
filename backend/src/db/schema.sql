@@ -1,77 +1,56 @@
--- Complete Database Schema for Mini ERP + CRM Operations Portal
-
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   email VARCHAR(150) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   role ENUM('ADMIN', 'SALES', 'WAREHOUSE', 'ACCOUNTS') NOT NULL DEFAULT 'SALES',
-  status ENUM('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
-  reset_password_token VARCHAR(255) NULL,
-  reset_password_expires DATETIME NULL,
+  reset_password_token VARCHAR(255) DEFAULT NULL,
+  reset_password_expires DATETIME DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at DATETIME DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS customers (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  mobile VARCHAR(20) NOT NULL,
+  company_name VARCHAR(150) NOT NULL,
+  contact_person VARCHAR(100) NOT NULL,
   email VARCHAR(150) NOT NULL,
-  business_name VARCHAR(150) NOT NULL,
-  gstin VARCHAR(20) NULL,
-  type ENUM('Retail', 'Wholesale', 'Distributor') NOT NULL DEFAULT 'Wholesale',
+  phone VARCHAR(20) NOT NULL,
+  gstin VARCHAR(20) DEFAULT NULL,
   address TEXT NOT NULL,
-  status ENUM('Lead', 'Active', 'Inactive') NOT NULL DEFAULT 'Active',
-  follow_up_date VARCHAR(20) NULL,
-  notes TEXT NULL,
+  city VARCHAR(50) NOT NULL,
+  state VARCHAR(50) NOT NULL,
+  status ENUM('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS customer_followups (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  customer_id INT NOT NULL,
-  note TEXT NOT NULL,
-  created_by_name VARCHAR(100) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(150) NOT NULL,
   sku VARCHAR(50) NOT NULL UNIQUE,
+  name VARCHAR(150) NOT NULL,
   category VARCHAR(50) NOT NULL,
-  unit_price DECIMAL(10, 2) NOT NULL,
+  unit VARCHAR(20) DEFAULT 'Pcs',
+  price DECIMAL(10, 2) NOT NULL,
   stock_quantity INT NOT NULL DEFAULT 0,
   min_stock_level INT NOT NULL DEFAULT 10,
-  location VARCHAR(50) DEFAULT 'WH-01',
+  warehouse_location VARCHAR(50) DEFAULT 'Bay-A1',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS stock_movements (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  product_id INT NOT NULL,
-  product_name VARCHAR(150) NOT NULL,
-  sku VARCHAR(50) NOT NULL,
-  type ENUM('IN', 'OUT') NOT NULL,
-  quantity INT NOT NULL,
-  reason VARCHAR(150) NOT NULL,
-  created_by_name VARCHAR(100) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS challans (
   id INT AUTO_INCREMENT PRIMARY KEY,
   challan_number VARCHAR(50) NOT NULL UNIQUE,
   customer_id INT NOT NULL,
-  customer_name VARCHAR(150) NOT NULL,
   total_amount DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
-  total_quantity INT NOT NULL DEFAULT 0,
-  status ENUM('Draft', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Draft',
+  status ENUM(
+    'DRAFT',
+    'PENDING_DISPATCH',
+    'DISPATCHED',
+    'DELIVERED',
+    'CANCELLED'
+  ) DEFAULT 'DRAFT',
   created_by INT NOT NULL,
-  created_by_name VARCHAR(100) NOT NULL,
+  dispatch_date DATETIME DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
@@ -81,20 +60,9 @@ CREATE TABLE IF NOT EXISTS challan_items (
   id INT AUTO_INCREMENT PRIMARY KEY,
   challan_id INT NOT NULL,
   product_id INT NOT NULL,
-  product_name VARCHAR(150) NOT NULL,
-  sku VARCHAR(50) NOT NULL,
-  unit_price DECIMAL(10, 2) NOT NULL,
   quantity INT NOT NULL,
+  unit_price DECIMAL(10, 2) NOT NULL,
   total_price DECIMAL(12, 2) NOT NULL,
   FOREIGN KEY (challan_id) REFERENCES challans(id) ON DELETE CASCADE,
   FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS activity_logs (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  action VARCHAR(100) NOT NULL,
-  details TEXT NOT NULL,
-  user_name VARCHAR(100) NOT NULL,
-  user_email VARCHAR(150) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
