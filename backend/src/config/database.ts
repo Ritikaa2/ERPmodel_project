@@ -10,6 +10,8 @@ export const inMemoryStore = {
   products: [] as any[],
   challans: [] as any[],
   challan_items: [] as any[],
+  stock_movements: [] as any[],
+  activity_logs: [] as any[],
 };
 
 export const initDatabase = async () => {
@@ -25,12 +27,21 @@ export const initDatabase = async () => {
       queueLimit: 0,
     });
 
-    await connection.getConnection();
+    const conn = await connection.getConnection();
+    conn.release();
+
     pool = connection;
-    console.log(`✅ Connected to MySQL database "${ENV.DB.NAME}" at ${ENV.DB.HOST}:${ENV.DB.PORT}`);
     isUsingInMemoryFallback = false;
+
+    console.log(
+      `✅ Connected to MySQL database "${ENV.DB.NAME}" at ${ENV.DB.HOST}:${ENV.DB.PORT}`
+    );
   } catch (error: any) {
-    console.warn(`⚠️ Could not connect to MySQL server (${error.message}). Operating in high-reliability in-memory storage mode for local development.`);
+    console.error(`❌ MySQL connection failed: ${error.message}`);
+
+    pool = null;
     isUsingInMemoryFallback = true;
+
+    console.warn('⚠️ Using in-memory fallback storage.');
   }
 };
