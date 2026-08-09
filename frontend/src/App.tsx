@@ -45,6 +45,18 @@ import {
   X,
   Menu,
   FileSpreadsheet,
+  CheckCircle2,
+  Zap,
+  Globe,
+  Layers,
+  Clock,
+  ChevronUp,
+  Calculator,
+  ArrowUpRight,
+  Database,
+  Activity,
+  Award,
+  Lock,
 } from 'lucide-react';
 import {
   Area,
@@ -59,70 +71,102 @@ import {
 } from 'recharts';
 
 type ScreenMode = 'landing' | 'login' | 'signup' | 'forgot-password' | 'reset-password' | 'dashboard';
-type SectionId = 'home' | 'features' | 'modules' | 'about' | 'contact';
+type SectionId = 'home' | 'features' | 'modules' | 'calculator' | 'about' | 'contact';
 
 const navItems: { label: string; id: SectionId }[] = [
   { label: 'Home', id: 'home' },
   { label: 'Features', id: 'features' },
   { label: 'Modules', id: 'modules' },
+  { label: 'ROI Calculator', id: 'calculator' },
   { label: 'About', id: 'about' },
-  { label: 'Contact', id: 'contact' },
 ];
 
-const liveSalesData = [
-  { day: '01 May', sales: 12000 },
-  { day: '05 May', sales: 18500 },
-  { day: '09 May', sales: 25200 },
-  { day: '13 May', sales: 21000 },
-  { day: '17 May', sales: 36500 },
-  { day: '21 May', sales: 31200 },
-  { day: '25 May', sales: 42100 },
-  { day: '29 May', sales: 45500 },
-];
+// Data Sets for Hero Chart Simulation
+const salesDatasets = {
+  '7D': [
+    { day: 'Mon', sales: 18000, orders: 42 },
+    { day: 'Tue', sales: 24000, orders: 58 },
+    { day: 'Wed', sales: 21000, orders: 51 },
+    { day: 'Thu', sales: 32000, orders: 74 },
+    { day: 'Fri', sales: 29000, orders: 68 },
+    { day: 'Sat', sales: 41000, orders: 92 },
+    { day: 'Sun', sales: 45500, orders: 104 },
+  ],
+  '30D': [
+    { day: '01 May', sales: 12000, orders: 28 },
+    { day: '05 May', sales: 18500, orders: 40 },
+    { day: '09 May', sales: 25200, orders: 62 },
+    { day: '13 May', sales: 21000, orders: 48 },
+    { day: '17 May', sales: 36500, orders: 85 },
+    { day: '21 May', sales: 31200, orders: 71 },
+    { day: '25 May', sales: 42100, orders: 98 },
+    { day: '29 May', sales: 48500, orders: 112 },
+  ],
+  '90D': [
+    { day: 'Mar', sales: 180000, orders: 420 },
+    { day: 'Apr', sales: 240000, orders: 580 },
+    { day: 'May', sales: 310000, orders: 750 },
+    { day: 'Jun', sales: 420000, orders: 980 },
+  ],
+};
 
-const bottomStats = [
-  { value: '120+', label: 'Total Customers', icon: Users, color: 'text-blue-600 bg-blue-50 dark:bg-blue-950/40' },
-  { value: '85+', label: 'Total Products', icon: Boxes, color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40' },
-  { value: '2.45L+', label: 'Total Sales (This Month)', icon: WalletCards, color: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40' },
-  { value: '18+', label: 'Today\'s Challans', icon: FileText, color: 'text-amber-600 bg-amber-50 dark:bg-amber-950/40' },
-  { value: '100%', label: 'Secure & Reliable', icon: ShieldCheck, color: 'text-purple-600 bg-purple-50 dark:bg-purple-950/40' },
+const clientLogos = [
+  { name: 'Apex Logistics', rating: '4.9/5', tag: 'Distribution' },
+  { name: 'Nexus Wholesale', rating: '5.0/5', tag: 'FMCG Supply' },
+  { name: 'Zenith Global', rating: '4.8/5', tag: 'Import/Export' },
+  { name: 'Vanguard Retail', rating: '4.9/5', tag: 'Multi-Store' },
+  { name: 'Hyperion Express', rating: '5.0/5', tag: 'Warehousing' },
+  { name: 'Starlight Trade', rating: '4.7/5', tag: 'Pharma Retail' },
 ];
 
 const mainModules = [
   {
-    title: 'Customer Management',
-    desc: 'Manage leads, customers, GSTIN details, follow-ups & CRM interactions.',
+    title: 'Customer Management (CRM)',
+    desc: '360° lead tracking, client ledgers, GSTIN verification & credit term tracking.',
     icon: Users,
-    color: 'text-blue-600 bg-blue-100 dark:bg-blue-950/50',
-    id: 'crm',
+    color: 'from-blue-500 to-cyan-500',
+    lightBg: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+    category: 'CRM & Sales',
   },
   {
-    title: 'Inventory Management',
-    desc: 'Track products, stock levels, warehouse locations & low-stock alerts.',
+    title: 'Inventory & Warehousing',
+    desc: 'Multi-bin stock tracking, SKU variants, auto reorder triggers & batch control.',
     icon: Boxes,
-    color: 'text-emerald-600 bg-emerald-100 dark:bg-emerald-950/50',
-    id: 'inventory',
+    color: 'from-emerald-500 to-teal-500',
+    lightBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+    category: 'Operations',
   },
   {
-    title: 'Sales & Challans',
-    desc: 'Create challans, invoices, auto stock deduction & track sales orders.',
+    title: 'Sales & Delivery Challans',
+    desc: '4-step wizard for instant dispatch note creation, stock locks & PDF invoices.',
     icon: FileSpreadsheet,
-    color: 'text-indigo-600 bg-indigo-100 dark:bg-indigo-950/50',
-    id: 'challans',
+    color: 'from-indigo-500 to-purple-500',
+    lightBg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
+    category: 'CRM & Sales',
   },
   {
-    title: 'Reports & Analytics',
-    desc: 'Get real-time revenue insights, sales performance & inventory trends.',
+    title: 'Real-time Analytics',
+    desc: 'Executive summaries, gross margin calculators, top customer reports & heatmaps.',
     icon: BarChart3,
-    color: 'text-amber-600 bg-amber-100 dark:bg-amber-950/50',
-    id: 'reports',
+    color: 'from-amber-500 to-orange-500',
+    lightBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+    category: 'Analytics',
   },
   {
-    title: 'User & Role Management',
-    desc: 'Secure access with roles (Admin, Sales, Warehouse, Accounts).',
+    title: 'RBAC Access Control',
+    desc: 'Granular role profiles (Admin, Sales, Warehouse, Accounts) with security logs.',
     icon: UserCog,
-    color: 'text-purple-600 bg-purple-100 dark:bg-purple-950/50',
-    id: 'roles',
+    color: 'from-purple-500 to-pink-500',
+    lightBg: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+    category: 'Security',
+  },
+  {
+    title: 'Stock Movements Audit',
+    desc: 'Audit trails for every stock in/out event with user signatures and time stamps.',
+    icon: Warehouse,
+    color: 'from-rose-500 to-red-500',
+    lightBg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+    category: 'Operations',
   },
 ];
 
@@ -130,9 +174,18 @@ const MainAppContent: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [screen, setScreen] = useState<ScreenMode>('landing');
   const [activeTab, setActiveTab] = useState<TabName>('Dashboard');
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [activeSection, setActiveSection] = useState<SectionId>('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Landing Page Interactive State
+  const [chartRange, setChartRange] = useState<'7D' | '30D' | '90D'>('30D');
+  const [moduleFilter, setModuleFilter] = useState<'All' | 'CRM & Sales' | 'Operations' | 'Analytics' | 'Security'>('All');
+  const [activeFeatureTab, setActiveFeatureTab] = useState<'crm' | 'warehouse' | 'challan' | 'security'>('crm');
+
+  // ROI Calculator State
+  const [monthlyOrders, setMonthlyOrders] = useState<number>(350);
+  const [teamSize, setTeamSize] = useState<number>(12);
 
   useEffect(() => {
     if (darkMode) {
@@ -162,6 +215,13 @@ const MainAppContent: React.FC = () => {
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const filteredModules = moduleFilter === 'All' 
+    ? mainModules 
+    : mainModules.filter(m => m.category === moduleFilter);
+
+  const estimatedHoursSaved = Math.round((monthlyOrders * 0.25) + (teamSize * 8));
+  const estimatedMoneySaved = Math.round(estimatedHoursSaved * 450);
 
   const renderActiveModuleTabContent = () => {
     switch (activeTab) {
@@ -248,14 +308,12 @@ const MainAppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-800 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       
       {/* AUTHENTICATED WORKSPACE WITH DEEP NAVY SIDEBAR */}
       {screen === 'dashboard' ? (
         <ProtectedRoute onNavigateToLogin={() => setScreen('login')}>
           <div className="flex min-h-screen w-full">
-            
-            {/* Left Deep Navy Sidebar matching Blueprint Image */}
             <Sidebar
               activeTab={activeTab}
               setActiveTab={setActiveTab}
@@ -266,7 +324,6 @@ const MainAppContent: React.FC = () => {
               }}
             />
 
-            {/* Right Main Content Area matching Blueprint Image */}
             <div className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-[#07090e]">
               <Header
                 darkMode={darkMode}
@@ -278,8 +335,6 @@ const MainAppContent: React.FC = () => {
               />
 
               <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
-                
-                {/* User Role Welcome Bar */}
                 <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl shadow-md border border-slate-800 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -297,48 +352,51 @@ const MainAppContent: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Main Dynamic View Content */}
                 {renderActiveModuleTabContent()}
-
               </main>
-
             </div>
-
           </div>
         </ProtectedRoute>
       ) : (
-        /* LANDING PAGE DESIGN */
-        <div className="w-full flex flex-col min-h-screen">
+        /* PREMIUM HIGH-CONVERSION LANDING PAGE DESIGN */
+        <div className="w-full flex flex-col min-h-screen relative overflow-hidden">
           
-          <nav className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-800">
+          {/* Ambient Lighting Gradients */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-gradient-to-tr from-indigo-600/20 via-purple-600/20 to-pink-500/10 blur-[120px] pointer-events-none rounded-full" />
+          <div className="absolute top-[800px] -right-40 w-96 h-96 bg-blue-600/15 blur-[100px] pointer-events-none rounded-full" />
+          
+          {/* Glassmorphic Navbar */}
+          <nav className="bg-white/80 dark:bg-[#090d16]/80 backdrop-blur-xl sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-800/80 transition-all">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex items-center justify-between h-20">
                 
+                {/* Brand Logo */}
                 <div
                   className="flex items-center gap-3 cursor-pointer group"
                   onClick={() => setScreen('landing')}
                 >
-                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
-                    <ShoppingCart className="w-6 h-6" />
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+                    <ShoppingCart className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="font-extrabold text-xl text-slate-900 dark:text-white tracking-tight">
-                      Mini ERP Portal
+                    <span className="font-black text-xl text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                      Mini ERP <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 font-bold">PRO</span>
                     </span>
-                    <span className="block text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold tracking-wide">
-                      Smart Business Management
+                    <span className="block text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">
+                      Enterprise Suite v2.4
                     </span>
                   </div>
                 </div>
 
-                <div className="hidden md:flex items-center space-x-1 bg-slate-100/70 dark:bg-slate-800/70 p-1.5 rounded-full border border-slate-200/60 dark:border-slate-700">
+                {/* Navigation Links */}
+                <div className="hidden md:flex items-center space-x-1 bg-slate-100/80 dark:bg-slate-800/60 backdrop-blur-md p-1.5 rounded-full border border-slate-200/80 dark:border-slate-700/80">
                   {navItems.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => scrollToSection(item.id)}
-                      className={`px-5 py-2 text-xs font-bold rounded-full transition ${
+                      className={`px-5 py-2 text-xs font-bold rounded-full transition-all ${
                         activeSection === item.id
-                          ? 'text-white bg-indigo-600 shadow-sm'
+                          ? 'text-white bg-indigo-600 shadow-md shadow-indigo-600/20'
                           : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400'
                       }`}
                     >
@@ -347,47 +405,50 @@ const MainAppContent: React.FC = () => {
                   ))}
                 </div>
 
-                <div className="hidden md:flex items-center gap-2.5">
+                {/* Actions */}
+                <div className="hidden md:flex items-center gap-3">
                   <button
                     onClick={() => setDarkMode(!darkMode)}
-                    className="p-2.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                    title="Toggle Theme"
+                    className="p-2.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition"
+                    title="Toggle Dark/Light Mode"
                   >
                     {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                   </button>
+                  
                   {isAuthenticated ? (
                     <button
                       onClick={() => setScreen('dashboard')}
-                      className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-indigo-500/20 flex items-center gap-2"
+                      className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2 group"
                     >
-                      <span>Open Dashboard</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <span>Open Workspace</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </button>
                   ) : (
                     <>
                       <button
                         onClick={() => setScreen('signup')}
-                        className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition border border-slate-200 dark:border-slate-700 flex items-center gap-1.5"
+                        className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition border border-slate-200 dark:border-slate-700 flex items-center gap-1.5"
                       >
-                        <UserPlus className="w-4 h-4 text-indigo-600" />
-                        <span>Sign Up</span>
+                        <UserPlus className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                        <span>Register</span>
                       </button>
 
                       <button
                         onClick={() => setScreen('login')}
-                        className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition shadow-md shadow-indigo-500/25 flex items-center gap-2"
+                        className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2 group"
                       >
                         <span>Sign In</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                       </button>
                     </>
                   )}
                 </div>
 
+                {/* Mobile Menu Toggle */}
                 <div className="md:hidden flex items-center gap-2">
                   <button
                     onClick={() => setDarkMode(!darkMode)}
-                    className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 rounded-lg"
+                    className="p-2 text-slate-500 dark:text-slate-400 rounded-lg"
                   >
                     {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                   </button>
@@ -401,178 +462,606 @@ const MainAppContent: React.FC = () => {
 
               </div>
             </div>
+
+            {/* Mobile Dropdown */}
+            {mobileMenuOpen && (
+              <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-4 space-y-2">
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => scrollToSection(item.id)}
+                    className="block w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-xl"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-2">
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); setScreen('login'); }}
+                    className="w-full py-2.5 bg-indigo-600 text-white text-xs font-bold rounded-xl"
+                  >
+                    Sign In to Portal
+                  </button>
+                </div>
+              </div>
+            )}
           </nav>
 
           <main className="flex-1">
-            <section id="home" className="pt-12 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            
+            {/* HERO SECTION */}
+            <section id="home" className="pt-12 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 
+                {/* Hero Left Content */}
                 <div className="lg:col-span-5 space-y-6">
                   
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold">
-                    <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
-                    <span>Full Stack 10-Module Operations Portal</span>
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
+                    <Sparkles className="w-4 h-4 text-indigo-500 animate-pulse" />
+                    <span>Next-Gen Enterprise Wholesale ERP</span>
                   </div>
 
-                  <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.15]">
-                    Manage Your Business <br />
-                    Smarter with <br />
-                    <span className="relative inline-block text-indigo-600 dark:text-indigo-400">
-                      Mini ERP Portal
-                      <svg className="absolute -bottom-2 left-0 w-full h-3 text-indigo-400/40 pointer-events-none" viewBox="0 0 200 12" fill="none">
-                        <path d="M2 10C50 2 150 2 198 10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-                      </svg>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">
+                    Unify Sales, <br />
+                    Inventory & CRM in <br />
+                    <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+                      One Smart Portal
                     </span>
                   </h1>
 
                   <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-                    A complete wholesale/distribution management system with CRM, Inventory, Sales Challans & Role-based Access.
+                    Designed for high-growth distributors & wholesalers. Real-time stock sync, multi-role access control, auto sales challans, and dynamic GST compliance.
                   </p>
 
                   <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                      <UserCog className="w-4 h-4 text-indigo-600" />
-                      <span>Role-Based Access</span>
+                    <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white/60 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs">
+                      <UserCog className="w-4 h-4 text-indigo-500" />
+                      <span>Role-Based RBAC</span>
                     </div>
-                    <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                      <TrendingUp className="w-4 h-4 text-emerald-600" />
-                      <span>Real-time Analytics</span>
+                    <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white/60 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs">
+                      <TrendingUp className="w-4 h-4 text-emerald-500" />
+                      <span>Live Revenue Metrics</span>
                     </div>
-                    <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                      <Boxes className="w-4 h-4 text-blue-600" />
-                      <span>Stock Movement Logs</span>
+                    <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white/60 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs">
+                      <Boxes className="w-4 h-4 text-cyan-500" />
+                      <span>Batch Stock Audit</span>
                     </div>
-                    <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                      <FileSpreadsheet className="w-4 h-4 text-amber-600" />
-                      <span>Export Invoice PDF</span>
+                    <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white/60 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/80 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs">
+                      <FileSpreadsheet className="w-4 h-4 text-amber-500" />
+                      <span>1-Click Invoice PDF</span>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-4 pt-3">
+                  <div className="flex flex-wrap items-center gap-4 pt-4">
                     <button
                       onClick={() => setScreen('signup')}
-                      className="px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-indigo-600/30 transition transform hover:-translate-y-0.5 flex items-center gap-2"
+                      className="px-8 py-4 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-extrabold rounded-2xl shadow-xl shadow-indigo-600/30 transition transform hover:-translate-y-0.5 flex items-center gap-3 group"
                     >
-                      <span>Get Started - Register</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <span>Start 14-Day Free Trial</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                     <button
                       onClick={() => setScreen('login')}
-                      className="px-7 py-3.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs transition"
+                      className="px-7 py-4 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 text-sm font-bold rounded-2xl border border-slate-200/80 dark:border-slate-700 shadow-sm transition flex items-center gap-2"
                     >
-                      Sign In to Portal →
+                      <span>Launch Interactive Demo</span>
+                      <ArrowUpRight className="w-4 h-4 text-slate-400" />
                     </button>
                   </div>
 
+                  <div className="flex items-center gap-6 pt-2 text-xs text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> No credit card required</span>
+                    <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Instant Setup</span>
+                  </div>
+
                 </div>
 
+                {/* Hero Right Dashboard Interactive Simulation */}
                 <div className="lg:col-span-7">
-                  <div className="bg-slate-900 rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 text-slate-100 relative overflow-hidden">
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">
-                          <Building2 className="w-4 h-4" />
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition duration-1000"></div>
+                    
+                    <div className="relative bg-slate-900 rounded-3xl p-5 sm:p-7 shadow-2xl border border-slate-800 text-slate-100 overflow-hidden">
+                      
+                      {/* Top Header Controls */}
+                      <div className="flex items-center justify-between pb-5 border-b border-slate-800/80 mb-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md">
+                            <Building2 className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-white flex items-center gap-2">
+                              Enterprise Command Center
+                              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                            </p>
+                            <p className="text-[11px] text-slate-400">Real-time Stock & Revenue Engine</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs font-bold text-white">Good Morning, Admin 👋</p>
-                          <p className="text-[10px] text-slate-400">Mini ERP Operations Workspace</p>
+
+                        {/* Interactive Range Switcher */}
+                        <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60">
+                          {(['7D', '30D', '90D'] as const).map((range) => (
+                            <button
+                              key={range}
+                              onClick={() => setChartRange(range)}
+                              className={`px-3 py-1 text-[11px] font-bold rounded-lg transition-all ${
+                                chartRange === range
+                                  ? 'bg-indigo-600 text-white shadow-sm'
+                                  : 'text-slate-400 hover:text-white'
+                              }`}
+                            >
+                              {range}
+                            </button>
+                          ))}
                         </div>
                       </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-indigo-300 font-bold">10 Modules Built</span>
+
+                      {/* Stat Cards Row */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                        <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 hover:border-indigo-500/50 transition">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Clients</p>
+                          <p className="text-xl font-black text-white mt-1">1,248</p>
+                          <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-0.5 mt-0.5">
+                            <ChevronUp className="w-3 h-3" /> +14% this month
+                          </span>
+                        </div>
+
+                        <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 hover:border-indigo-500/50 transition">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Catalog SKUs</p>
+                          <p className="text-xl font-black text-white mt-1">8,420</p>
+                          <span className="text-[10px] text-slate-400 font-medium mt-0.5 block">Across 4 Warehouses</span>
+                        </div>
+
+                        <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 hover:border-amber-500/50 transition">
+                          <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Low Stock Alerts</p>
+                          <p className="text-xl font-black text-amber-400 mt-1">12 Items</p>
+                          <span className="text-[10px] text-amber-300/80 font-medium mt-0.5 block">Action Required</span>
+                        </div>
+
+                        <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 hover:border-indigo-500/50 transition">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Net Sales ({chartRange})</p>
+                          <p className="text-xl font-black text-indigo-400 mt-1">
+                            ₹{chartRange === '7D' ? '2.18L' : chartRange === '30D' ? '24.5L' : '1.15Cr'}
+                          </p>
+                          <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-0.5 mt-0.5">
+                            <ChevronUp className="w-3 h-3" /> +22.4% vs prev
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Interactive Recharts Area */}
+                      <div className="bg-slate-800/40 p-4 rounded-2xl border border-slate-800/80 relative">
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-xs font-bold text-white flex items-center gap-2">
+                            <Activity className="w-4 h-4 text-indigo-400" /> Revenue & Order Volume Trend
+                          </p>
+                          <span className="text-[10px] font-mono text-slate-400">Updated 2m ago</span>
+                        </div>
+                        <div className="h-44 w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={salesDatasets[chartRange]}>
+                              <defs>
+                                <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
+                                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                              <XAxis dataKey="day" stroke="#64748b" fontSize={10} tickLine={false} />
+                              <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
+                              <Tooltip 
+                                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }}
+                              />
+                              <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
                     </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                      <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80">
-                        <p className="text-[10px] font-medium text-slate-400">Total Customers</p>
-                        <p className="text-lg font-black text-white">120</p>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80">
-                        <p className="text-[10px] font-medium text-slate-400">Total Products</p>
-                        <p className="text-lg font-black text-white">85</p>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80">
-                        <p className="text-[10px] font-medium text-slate-400">Low Stock Items</p>
-                        <p className="text-lg font-black text-amber-400">7</p>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80">
-                        <p className="text-[10px] font-medium text-slate-400">Today's Sales</p>
-                        <p className="text-lg font-black text-white">₹2,45,000</p>
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-800">
-                      <p className="text-xs font-bold text-white mb-2">Sales Overview Trend (This Month)</p>
-                      <div className="h-36 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={liveSalesData}>
-                            <CartesianGrid strokeDasharray="2 2" opacity={0.1} />
-                            <Line type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={3} dot={{ r: 3, fill: '#6366f1' }} />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-
                   </div>
                 </div>
 
               </div>
             </section>
 
-            <section id="features" className="py-16 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800">
+            {/* MARQUEE CLIENTS / TRUSTED COMPANIES WITH HOVER GLOW */}
+            <section className="py-10 bg-white/40 dark:bg-slate-900/40 border-y border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <p className="text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-6">
+                  Trusted by 500+ Leading Wholesalers & Distributors Across India
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {clientLogos.map((client, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 text-center group cursor-pointer"
+                    >
+                      <p className="font-extrabold text-sm text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                        {client.name}
+                      </p>
+                      <div className="flex items-center justify-center gap-2 mt-1">
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">{client.tag}</span>
+                        <span className="text-[10px] font-bold text-amber-500">★ {client.rating}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* INTERACTIVE MODULE SHOWCASE SECTION */}
+            <section id="modules" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              
+              <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
+                <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 text-xs font-extrabold tracking-wider uppercase">
+                  Complete Architecture
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                  10 Modules Built for Enterprise Scale
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  Select a category to filter through core platform capabilities:
+                </p>
+
+                {/* Filter Category Chips */}
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
+                  {(['All', 'CRM & Sales', 'Operations', 'Analytics', 'Security'] as const).map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setModuleFilter(cat)}
+                      className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+                        moduleFilter === cat
+                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                          : 'bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-400'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Module Grid Cards with Hover Glow */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredModules.map((m, idx) => {
+                  const Icon = m.icon;
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => setScreen('login')}
+                      className="group relative bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 hover:border-indigo-500/50 hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden"
+                    >
+                      {/* Top Accent Gradient on Hover */}
+                      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${m.color} opacity-0 group-hover:opacity-100 transition-opacity`} />
+
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${m.lightBg}`}>
+                            <Icon className="w-6 h-6" />
+                          </div>
+                          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700">
+                            {m.category}
+                          </span>
+                        </div>
+
+                        <h3 className="font-extrabold text-slate-900 dark:text-white text-base mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                          {m.title}
+                        </h3>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                          {m.desc}
+                        </p>
+                      </div>
+
+                      <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                        <span>Launch Module Preview</span>
+                        <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-slate-800 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+            </section>
+
+            {/* TABBED FEATURE DEEP-DIVE SHOWCASE */}
+            <section id="features" className="py-20 bg-white/60 dark:bg-slate-900/60 border-y border-slate-200/80 dark:border-slate-800/80">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <div className="text-center max-w-2xl mx-auto mb-12">
-                  <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                    10 Core Modules Built Exactly to Blueprint
+                  <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                    Engineered for Wholesale Excellence
                   </h2>
-                  <div className="w-12 h-1 bg-indigo-600 mx-auto mt-2 rounded-full"></div>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2">
+                    Click through the tabs to explore specialized operational workflows:
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                  {mainModules.map((m, idx) => {
-                    const Icon = m.icon;
-                    return (
-                      <div
-                        key={idx}
-                        onClick={() => setScreen('login')}
-                        className="bg-slate-50 dark:bg-slate-800/80 p-5 rounded-2xl border border-slate-200/70 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-xl transition-all cursor-pointer group flex flex-col justify-between"
-                      >
-                        <div>
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 ${m.color}`}>
-                            <Icon className="w-6 h-6" />
-                          </div>
-                          <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-2">{m.title}</h3>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{m.desc}</p>
-                        </div>
-                        <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex justify-end">
-                          <div className="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </div>
-                        </div>
+                {/* Tabs */}
+                <div className="flex justify-center mb-8 border-b border-slate-200 dark:border-slate-800">
+                  <div className="flex gap-4 sm:gap-8 overflow-x-auto pb-2">
+                    {[
+                      { id: 'crm', label: 'CRM & Accounts', icon: Users },
+                      { id: 'warehouse', label: 'Warehouse & Bays', icon: Warehouse },
+                      { id: 'challan', label: 'Sales Challan Wizard', icon: FileSpreadsheet },
+                      { id: 'security', label: 'Role Permissions', icon: ShieldCheck },
+                    ].map((tab) => {
+                      const TabIcon = tab.icon;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveFeatureTab(tab.id as any)}
+                          className={`flex items-center gap-2 pb-3 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+                            activeFeatureTab === tab.id
+                              ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+                              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                          }`}
+                        >
+                          <TabIcon className="w-4 h-4" />
+                          <span>{tab.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Tab Content Display */}
+                <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                  
+                  <div className="lg:col-span-5 space-y-4">
+                    {activeFeatureTab === 'crm' && (
+                      <>
+                        <span className="px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-300 text-[10px] font-mono font-bold">MODULE 01 • CRM</span>
+                        <h3 className="text-2xl font-bold text-white">Full Customer Lifecycle & Credit Limits</h3>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          Track customer GSTIN status, individual payment credit terms, outstanding balances, and historical order trends in one central view.
+                        </p>
+                        <ul className="space-y-2 text-xs text-slate-300">
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Auto GSTIN state code parsing</li>
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Automated overdue payment reminders</li>
+                        </ul>
+                      </>
+                    )}
+
+                    {activeFeatureTab === 'warehouse' && (
+                      <>
+                        <span className="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold">MODULE 02 • WAREHOUSE</span>
+                        <h3 className="text-2xl font-bold text-white">Multi-Location Stock & Low Stock Triggers</h3>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          Assign products to distinct warehouse bays (Aisle 1, Shelf B). Set automated reorder thresholds so you never run out of top sellers.
+                        </p>
+                        <ul className="space-y-2 text-xs text-slate-300">
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Real-time stock reservation on order creation</li>
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Physical audit signature logs</li>
+                        </ul>
+                      </>
+                    )}
+
+                    {activeFeatureTab === 'challan' && (
+                      <>
+                        <span className="px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 text-[10px] font-mono font-bold">MODULE 03 • SALES</span>
+                        <h3 className="text-2xl font-bold text-white">4-Step Guided Sales Challan Wizard</h3>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          Step-by-step order builder: Select Customer → Add Line Items with Tax Calculation → Review Stock → Issue Instant Challan & PDF Invoice.
+                        </p>
+                        <ul className="space-y-2 text-xs text-slate-300">
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Auto stock deduction upon issue</li>
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Print-ready GST Tax Invoices</li>
+                        </ul>
+                      </>
+                    )}
+
+                    {activeFeatureTab === 'security' && (
+                      <>
+                        <span className="px-2.5 py-1 rounded-md bg-purple-500/20 text-purple-300 text-[10px] font-mono font-bold">MODULE 04 • SECURITY</span>
+                        <h3 className="text-2xl font-bold text-white">Role-Based Access Control (RBAC)</h3>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          Ensure sales agents only see their leads, warehouse staff manage inventory bays, and financial statements remain restricted to Admins & Accounts.
+                        </p>
+                        <ul className="space-y-2 text-xs text-slate-300">
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Firebase Authentication & JWT Security</li>
+                          <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Complete IP & Timestamp Activity Logs</li>
+                        </ul>
+                      </>
+                    )}
+
+                    <button
+                      onClick={() => setScreen('login')}
+                      className="pt-2 text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5"
+                    >
+                      <span>Explore this workflow live</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Visual Screen Mockup */}
+                  <div className="lg:col-span-7 bg-slate-950 p-4 rounded-2xl border border-slate-800 font-mono text-xs space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-red-500" />
+                        <div className="w-3 h-3 rounded-full bg-amber-500" />
+                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                        <span className="text-[10px] text-slate-500 ml-2">mini-erp-system // {activeFeatureTab}_view.ts</span>
                       </div>
-                    );
-                  })}
+                      <span className="text-[10px] text-indigo-400">STATUS: 200 OK</span>
+                    </div>
+
+                    <div className="p-3 bg-slate-900 rounded-xl space-y-2 text-[11px] text-slate-300">
+                      <p className="text-indigo-400">// Configured API Rest Endpoint Payload</p>
+                      <p>GET /api/v1/{activeFeatureTab}/summary?tenantId=9402</p>
+                      <p className="text-slate-500">{"{"}</p>
+                      <p className="pl-4 text-emerald-400">"status": "success",</p>
+                      <p className="pl-4 text-emerald-400">"activeUsers": 24,</p>
+                      <p className="pl-4 text-emerald-400">"module": "{activeFeatureTab.toUpperCase()}",</p>
+                      <p className="pl-4 text-emerald-400">"healthCheck": "100% Operational"</p>
+                      <p className="text-slate-500">{"}"}</p>
+                    </div>
+                  </div>
+
                 </div>
 
               </div>
             </section>
+
+            {/* LIVE ROI / SAVINGS CALCULATOR SECTION */}
+            <section id="calculator" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-8 sm:p-12 border border-slate-800 shadow-2xl">
+                
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                  
+                  <div className="lg:col-span-6 space-y-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-400/30">
+                      <Calculator className="w-4 h-4 text-indigo-400" />
+                      <span>Interactive ROI Estimator</span>
+                    </div>
+
+                    <h2 className="text-3xl font-black tracking-tight text-white">
+                      Calculate Your Monthly Operational Savings
+                    </h2>
+
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                      Adjust your order volume and team size to see how much manual work Mini ERP Portal eliminates.
+                    </p>
+
+                    {/* Sliders */}
+                    <div className="space-y-6 pt-2">
+                      <div>
+                        <div className="flex justify-between text-xs font-bold mb-2">
+                          <span className="text-slate-300">Monthly Challans / Orders:</span>
+                          <span className="text-indigo-400 font-mono text-sm">{monthlyOrders} Orders</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="50"
+                          max="2000"
+                          step="50"
+                          value={monthlyOrders}
+                          onChange={(e) => setMonthlyOrders(Number(e.target.value))}
+                          className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between text-xs font-bold mb-2">
+                          <span className="text-slate-300">Team Members (Sales & Warehouse):</span>
+                          <span className="text-indigo-400 font-mono text-sm">{teamSize} Users</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="2"
+                          max="100"
+                          step="1"
+                          value={teamSize}
+                          onChange={(e) => setTeamSize(Number(e.target.value))}
+                          className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Result Box */}
+                  <div className="lg:col-span-6">
+                    <div className="bg-slate-900/90 p-8 rounded-3xl border border-indigo-500/30 text-center space-y-6 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+
+                      <p className="text-xs font-extrabold uppercase tracking-widest text-slate-400">
+                        Estimated Monthly Impact
+                      </p>
+
+                      <div className="space-y-1">
+                        <p className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
+                          ₹{estimatedMoneySaved.toLocaleString('en-IN')}
+                        </p>
+                        <p className="text-xs text-emerald-400 font-semibold">Cost Savings per month</p>
+                      </div>
+
+                      <div className="pt-4 border-t border-slate-800 grid grid-cols-2 gap-4 text-center">
+                        <div>
+                          <p className="text-2xl font-black text-white">{estimatedHoursSaved} hrs</p>
+                          <p className="text-[11px] text-slate-400">Time Saved / Mo</p>
+                        </div>
+                        <div>
+                          <p className="text-2xl font-black text-white">99.8%</p>
+                          <p className="text-[11px] text-slate-400">Billing Accuracy</p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setScreen('signup')}
+                        className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-2xl shadow-lg transition"
+                      >
+                        Claim Your Efficiency Boost Now →
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </section>
+
           </main>
 
-          <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-              <div className="flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4 text-indigo-600" />
-                <span className="font-bold text-slate-900 dark:text-white">Mini ERP Portal</span>
-                <span>© 2026 Enterprise Operations Portal</span>
+          {/* PREMIUM FOOTER */}
+          <footer className="bg-white dark:bg-[#05070c] border-t border-slate-200 dark:border-slate-800/80 pt-12 pb-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-slate-200 dark:border-slate-800">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
+                      <ShoppingCart className="w-4 h-4" />
+                    </div>
+                    <span className="font-extrabold text-base text-slate-900 dark:text-white">Mini ERP Portal</span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Next-generation wholesale distribution system powered by MySQL, Express & React.
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3">Modules</p>
+                  <ul className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
+                    <li className="hover:text-indigo-500 cursor-pointer" onClick={() => setScreen('login')}>Customer CRM</li>
+                    <li className="hover:text-indigo-500 cursor-pointer" onClick={() => setScreen('login')}>Stock Movements</li>
+                    <li className="hover:text-indigo-500 cursor-pointer" onClick={() => setScreen('login')}>Sales Challans</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3">Security & Compliance</p>
+                  <ul className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
+                    <li>256-Bit SSL Encryption</li>
+                    <li>GSTIN Tax Compliant</li>
+                    <li>Role Based RBAC</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3">System Status</p>
+                  <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1 text-xs">
+                    <p className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" /> All Systems Operational
+                    </p>
+                    <p className="text-[10px] text-slate-500">Latency: 24ms (MySQL Pool)</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <span>Deep Navy Sidebar Layout • MySQL & Express REST API</span>
+
+              <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+                <p>© 2026 Enterprise Operations Portal. All rights reserved.</p>
+                <div className="flex items-center gap-4">
+                  <span className="hover:text-indigo-500 cursor-pointer">Privacy Policy</span>
+                  <span>•</span>
+                  <span className="hover:text-indigo-500 cursor-pointer">Terms of Service</span>
+                </div>
               </div>
+
             </div>
           </footer>
+
         </div>
       )}
 
